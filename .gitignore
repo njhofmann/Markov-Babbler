@@ -1,4 +1,4 @@
-Markov-Babbler/.idea/
-Markov-Babbler/Markov_Babbler_Ouput.txt
+.idea/
 Markov-Babbler/__pycache__/
-
+venv/
+src/__pycache__/

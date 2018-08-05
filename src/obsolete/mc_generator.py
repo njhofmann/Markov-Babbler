@@ -1,33 +1,50 @@
+import re
+
+
 class MarkovChain:
-    # From an input .txt file, generates a Markov Chain of all words in file"""
+    """
+    From one or more inputted .txt file, generates a Markov Chain of all the words in those files.
+    """
 
     def __init__(self, file_to_read):
         self.file_to_read = file_to_read
         self.converted_file = self.file_to_string()
         self.output_mc = self.create_markov_chain()
 
-    # Takes in a list, produces output list of each unique item in input list
     def unique_items(self, list):
+        """
+        Takes in a list, produces output list of each unique item in input list
+        :param list: the list to read
+        :return: list of each unique item in given list
+        """
         items = []
         for i in list:
             if i not in items:
                 items.append(i)
         return items
 
-    # Takes the text in input file and converts it into one long string
     def file_to_string(self):
+        """
+        Takes the text in input file and converts it into one long string
+        :return: String of all words in given input file
+        """
         try:
             f = open(self.file_to_read)
-        except:
+        except IOError:
             return ""
         string = f.read()
         return string
 
-    # Takes in file_to_string output, makes it a list where each word is a list,
-    # erases all unwanted characters like periods and colons, then lowers all letters
-    def clean_input_text(self, text):
-        text = text.split()
-        errors = [".", ",", "(", ")", ":", ";", "?", "!", "-", '"']
+    def clean_string(self, text):
+        """
+        Takes in a string and converts it to a list where each word (as designated by whitespace or a hypen) is an
+        element, removes all unwanted characters from each word (like periods and colons) and sets every letter to
+        lowercase
+        :param text: string to format
+        :return: formatted list of strings
+        """
+        text = re.split(' +|-', text)
+        errors = [".", ",", "(", ")", ":", ";", "?", "!", '"']
         for pos, word in enumerate(text):
             n = ""
             for l in word:
@@ -37,8 +54,12 @@ class MarkovChain:
 
         return text
 
-    # Takes in output text from file_to_string, makes a list of all two words next to each other
     def generate_word_pairs(self, text):
+        """
+        Takes in output text from file_to_string, makes a list of all two words next to each other
+        :param text:
+        :return:
+        """
         word_pairs = []
         for pos in range(len(text)):
             if pos != (len(text) - 1):
@@ -50,7 +71,7 @@ class MarkovChain:
     # Creates Markov Chain from
     def create_markov_chain(self):
         mc = {}
-        cleaned_text = self.clean_input_text(self.converted_file)
+        cleaned_text = self.clean_string(self.converted_file)
         words = self.unique_items(cleaned_text)
         word_pairs = self.generate_word_pairs(cleaned_text)
         unique_wp = self.unique_items(word_pairs)
