@@ -1,6 +1,7 @@
 import re
 import random
 
+
 class MarkovChain:
 
     def __init__(self):
@@ -16,7 +17,7 @@ class MarkovChain:
 
         # The current order of this Markov Chain, or how many prior states are considered when producing the next
         # state of this Markov Chain. Should always be > 0.
-        self.order = 1
+        self.order = 2
 
     def add_string(self, string):
         """
@@ -107,20 +108,21 @@ class MarkovChain:
         :return: the next selected state of this Markov Chain
         """
 
-        if self.current_state not in self.markov_chain:
-            self.current_state = ()
+        if len(self.markov_chain) != 0:
+            if self.current_state not in self.markov_chain:
+                self.current_state = ()
 
-        if len(self.current_state) == 0: # If current state hasn't been selected, select random key.
-            self.current_state = random.choice(list(self.markov_chain.keys()))
-        else:
-            possible_next_states = self.markov_chain[self.current_state]
-            next_state = random.choice(list(possible_next_states))
-            temp_cur_state = list(self.current_state)
-            temp_cur_state = temp_cur_state[1:]
-            temp_cur_state.append(next_state)
-            temp_cur_state = tuple(temp_cur_state)
-            self.current_state = temp_cur_state
-        return self.current_state[-1]
+            if len(self.current_state) == 0: # If current state hasn't been selected, select random key.
+                self.current_state = random.choice(list(self.markov_chain.keys()))
+            else:
+                possible_next_states = self.markov_chain[self.current_state]
+                next_state = random.choice(list(possible_next_states))
+                temp_cur_state = list(self.current_state)
+                temp_cur_state = temp_cur_state[1:]
+                temp_cur_state.append(next_state)
+                temp_cur_state = tuple(temp_cur_state)
+                self.current_state = temp_cur_state
+            return self.current_state[-1]
 
     def generate_sentence(self, sentence_length):
         """
@@ -130,7 +132,12 @@ class MarkovChain:
         """
         result = ''
         for i in range(sentence_length):
-            result += self.next_state()
+            to_add = self.next_state()
+
+            if to_add is None:
+                return ''
+
+            result += to_add
 
             if i != sentence_length - 1:
                 result += ' '
@@ -138,4 +145,4 @@ class MarkovChain:
         endings = ['.', '!', '?']
         endings_weights = [8, 1, 1]
         ending = random.choices(endings, endings_weights)[0]
-        return result[0].upper() + result[1:] + ending + '\n'
+        return result[0].upper() + result[1:] + ending
