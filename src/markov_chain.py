@@ -21,11 +21,19 @@ class MarkovChain:
 
     def add_string(self, string):
         """
-
-        :param string:
-        :return:
+        Given a string - properly formats it, converts it to a list of each word, stores it in the history, then adds it
+        tog this Markov Chain.
+        :param string: string to format and add
+        :return: None
         """
-        cleaned_text = self.format_and_store(string)
+        cleaned_text = re.split(' +|-|\n+', string)
+        errors = re.compile('\.|,|\(|\)|:|;|\?|!|"')
+        for idx in range(len(cleaned_text)):
+            word = cleaned_text[idx]
+            word = word.lower()
+            word = errors.sub('', word)
+            cleaned_text[idx] = word
+        self.history.append(cleaned_text)
         self.add_to_markov_chain(cleaned_text)
 
     def add_file(self, file):
@@ -43,33 +51,15 @@ class MarkovChain:
             return ""
         file_contents = f.read()
 
-        # Format the file's contents and store them in the history.
-        cleaned_text = self.format_and_store(file_contents)
-
-        # Add the formatted text to the current Markov Chain
-        self.add_to_markov_chain(cleaned_text)
-
-    def format_and_store(self, string):
-        """
-
-        :param string:
-        :return:
-        """
-        cleaned_text = re.split(' +|-|\n+', string)
-        errors = re.compile('\.|,|\(|\)|:|;|\?|!|"')
-        for idx in range(len(cleaned_text)):
-            word = cleaned_text[idx]
-            word = word.lower()
-            word = errors.sub('', word)
-            cleaned_text[idx] = word
-        self.history.append(cleaned_text)
-        return cleaned_text
+        self.add_string(file_contents)
 
     def add_to_markov_chain(self, formatted_text):
         """
-
-        :param formatted_text:
-        :return:
+        Given a list of formatted text, adds its contents to this Markov Chain. Each order length number of elements,
+        found by preceding down the list element by element, is added to the Markov Chain as is is the following
+        element.
+        :param formatted_text: list of text to add to this Markov Chain
+        :return: None
         """
         for idx, word in enumerate(formatted_text):
             if (idx + self.order) <= (len(formatted_text) - 1):  # Last state has nothing that follows it
@@ -89,25 +79,28 @@ class MarkovChain:
 
     def recompute_markov_chain(self, new_order):
         """
-        Recomputes this Markov Chain based off the new given order.
-        :param new_order:
+        Recomputes this Markov Chain based off the new given order and the formatted contents of previously added
+        strings and files. If the given new order is the same as the current order, no change is made.
+        :param new_order: new order to base this Markov Chain off
         :return: None
         """
         if new_order < 1:
             raise ValueError('And order must be > 0!')
+        elif new_order != self.order:
+            self.order = new_order
+            self.markov_chain = {}
+            self.current_state = ()
 
-        self.markov_chain = {}
-        self.current_state = ()
-        self.order = new_order
-        for stored_text in self.history:
-            self.add_to_markov_chain(stored_text)
+            for stored_text in self.history:
+                self.add_to_markov_chain(stored_text)
 
     def next_state(self):
         """
-        Selects and returns the next state of this Markov chain based off this Markov Chain's current state.
+        Selects and returns the next state of this Markov chain based off this Markov Chain's current state. If no
+        current state has been selected, or the current state does not exist in the current markov chain - randomly
+        selects one key.
         :return: the next selected state of this Markov Chain
         """
-
         if len(self.markov_chain) != 0:
             if self.current_state not in self.markov_chain:
                 self.current_state = ()
@@ -126,9 +119,11 @@ class MarkovChain:
 
     def generate_sentence(self, sentence_length):
         """
-
-        :param sentence_length:
-        :return:
+        Returns a sentence of the given sentence length (X) by stringing together the results of X calls to
+        next_state(), then applying capitalization to the first letter and adding a random ending punctuation to the
+        end.
+        :param sentence_length: length of sentence to produce
+        :return: sentenced of variable length produced by this Markov Chain
         """
         result = ''
         for i in range(sentence_length):

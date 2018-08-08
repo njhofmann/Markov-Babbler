@@ -6,24 +6,25 @@ from src.markov_chain import MarkovChain
 
 class Window:
     """
-    Creates foobar
+    GUI for a user to see and interact with markov chains - i.e. adding in text, changing the MC's order, how many
+    lines to produce, etc.
     """
 
     def __init__(self, master):
         """
-
-        :param master:
+        Initializes all the components of this GUI.
+        :param master: the root window of this GUI
         """
         self.master = master
         self.master.resizable(False, False)
+        self.master.title('Markov Babbler')
         self.markov_chain = MarkovChain()
-        master.title("Markov Babbler")
 
         # Constants
         self.button_height = 2
-        self.button_width = 20
+        self.button_width = 21
         self.button_off_color = 'Light Grey'
-        self.button_on_color = 'Grey'
+        self.button_on_color = 'Dark Grey'
         self.button_column_span = 2
         self.spinbox_length = 3
         self.number_of_sentences = 12
@@ -31,7 +32,7 @@ class Window:
         self.min_sentence_length = 10
         self.max_sentence_length = 20
 
-        # Displays babbler output
+        # Displays babbler's output
         self.display_frame = tk.Frame(master)
         self.display_frame.grid(row=0, rowspan=12, column=0, columnspan=10)
 
@@ -44,23 +45,24 @@ class Window:
         self.display.pack(side='left')
         self.display_scrollbar.pack(side='right', fill='y')
 
-        # Selects .txt file to add to this Markov Chain
+        # Selects .txt file to add to this window's Markov Chain
         self.select_file = tk.Button(master, text='Add File', height=self.button_height, width=self.button_width,
                                      bg=self.button_off_color, activebackground=self.button_on_color,
                                      command=self.find_file)
         self.select_file.grid(row=0, column=self.options_column, columnspan=self.button_column_span)
 
-        # Add user entered text to this Markov Chain
+        # Adds user entered text to this Markov Chain
         self.user_string_row = 1
 
         self.user_string_entry = tk.Entry(self.master)
+        self.user_string_entry.insert(0, 'Add text here!')
         self.user_string_entry.grid(row=self.user_string_row, column=self.options_column)
 
         self.user_string_button = tk.Button(self.master, text='Enter', bg=self.button_off_color,
                                             activebackground=self.button_on_color, command=self.add_user_text)
         self.user_string_button.grid(row=self.user_string_row, column=self.options_column+1)
 
-        # Select the markov chain's order
+        # Changes the Markov Chains's order
         self.order_row = 2
         self.order_selection_label = tk.Label(master, text='Markov Chain Order')
         self.order_selection_label.grid(row=self.order_row, column=self.options_column)
@@ -68,13 +70,13 @@ class Window:
         self.initial_order_value = tk.StringVar(master)
         self.initial_order_value.set(str(self.markov_chain.order))
 
-        self.order_selection = tk.Spinbox(master, values=tuple(range(1, 10)),
+        self.order_selection = tk.Spinbox(master, values=tuple(range(1, 11)),
                                           width=self.spinbox_length,
                                           command=self.recompute_markov_chain)
         self.order_selection.config(textvariable=self.initial_order_value)
         self.order_selection.grid(row=self.order_row, column=self.options_column + 1)
 
-        # Select the number sentences to generate.
+        # Select the number sentences for the Markov Chain to output
         self.num_sentences_row = 3
         self.num_sentences_label = tk.Label(master, text='Number of Sentences')
         self.num_sentences_label.grid(row=self.num_sentences_row, column=self.options_column)
@@ -88,7 +90,7 @@ class Window:
         self.num_sentences.config(textvariable=self.initial_num_sentences)
         self.num_sentences.grid(row=self.num_sentences_row, column=self.options_column + 1)
 
-        # Set minimum sentence length
+        # Set minimum sentence length for each of the Markov Chain's sentence outputs
         self.min_sentence_row = 4
 
         self.min_sentence_label = tk.Label(master, text='Min Sentence Length')
@@ -103,7 +105,7 @@ class Window:
         self.set_min_sentence.config(textvariable=self.initial_min_sentence)
         self.set_min_sentence.grid(row=self.min_sentence_row, column=self.options_column+1)
 
-        # Set maximum sentence length
+        # Set maximum sentence length for each of the Markov Chain's sentence outputs
         self.max_sentence_row = 5
 
         self.max_sentence_label = tk.Label(master, text='Max Sentence Length')
@@ -118,13 +120,14 @@ class Window:
         self.set_max_sentence.config(textvariable=self.initial_max_sentence)
         self.set_max_sentence.grid(row=self.max_sentence_row, column=self.options_column+1)
 
-        # Generates babbler text
+        # Generates a new batch of output from the Markov Chain, based off current constants like order, min/max
+        # sentence length, etc.
         self.generate = tk.Button(master, text="Generate Text", height=self.button_height, width=self.button_width,
                                   bg=self.button_off_color, activebackground=self.button_on_color,
                                   command=self.generate_babble_text)
         self.generate.grid(row=6, column=self.options_column, columnspan=self.button_column_span)
 
-        # Saves babbler text in a .txt file
+        # Saves the Markov Chain output last outputted to .txt file
         self.save_file = tk.Button(master, text='Save Text', height=self.button_height, width=self.button_width,
                                    bg=self.button_off_color, activebackground=self.button_on_color,
                                    command=self.save_babble)
@@ -132,7 +135,7 @@ class Window:
 
     def find_file(self):
         """
-        Finds the .txt file the user is wants to read from and adds it to this GUI's Markov Chain
+        Finds and adds the contents of a .txt file the user wants to add to this GUI's Markov Chain
         :return: None
         """
         selected_file = tk.filedialog.askopenfilename(initialdir='/', title='Select File',
@@ -156,13 +159,14 @@ class Window:
         for i in markov_chain_output:
             to_display += i + '\n'
 
+        # Clears any old text in the display, then inserts the newly created text
         self.display.delete('1.0', tk.END)
         self.display.insert('1.0', to_display)
 
     def add_user_text(self):
         """
-
-        :return:
+        Adds any text the user entered into the user_string_entry component to this GUI's Markov Chain.
+        :return: None
         """
         text_to_add = self.user_string_entry.get()
         self.user_string_entry.delete(0, tk.END)
@@ -170,16 +174,18 @@ class Window:
 
     def set_number_of_sentences(self):
         """
-
-        :return:
+        Sets the number of sentences to request this GUI's Markov Chain to produce from the current value of the
+        num_sentences SpinBox component.
+        :return: None
         """
         self.number_of_sentences = int(self.num_sentences.get())
 
-
     def set_min_sentence_length(self):
         """
-
-        :return:
+        Sets the minimum sentence length of any sentence this GUI's Markov Chain will output, as per the current value
+        of the set_min_sentence SpinBox. If the current value is greater than or equal to the current maximum sentence
+        length, no change is made.
+        :return: None
         """
         new_min = int(self.set_min_sentence.get())
         cur_max = self.max_sentence_length
@@ -194,8 +200,10 @@ class Window:
 
     def set_max_sentence_length(self):
         """
-
-        :return:
+        Sets the maximum sentence length of any sentence this GUI's Markov Chain will output, as per the current value
+        of the set_max_sentence SpinBox. If the current value is less than or equal to the current minimum sentence
+        length, no change is made.
+        :return: None
         """
         new_max = int(self.set_max_sentence.get())
         cur_min = self.min_sentence_length
@@ -210,8 +218,9 @@ class Window:
 
     def recompute_markov_chain(self):
         """
-
-        :return:
+        Recomputes this GUI's Markov Chain if the desired order is changed from the current order, as per the value of
+        the order_selection SpinBox component.
+        :return: None
         """
         new_order = int(self.order_selection.get())
         if new_order != self.markov_chain.order:
@@ -219,7 +228,8 @@ class Window:
 
     def save_babble(self):
         """
-        Saves the last generated babble text as a .txt file under a file name and directory of user's choice.
+        Saves the text this GUI's Markov Chain last produced as a .txt file under a file name and in a location of the
+        user's choice.
         :return: None
         """
         save_file = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
