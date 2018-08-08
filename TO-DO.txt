@@ -1,3 +1,2 @@
--Add minimum and maximum selection length, as well as min & max # of sentences.
--Add order selection.
--Documentation
+-Markov chain unit tests
+-Word vs text support for Markov Chain

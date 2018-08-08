@@ -3,6 +3,11 @@ import random
 
 
 class MarkovChain:
+    """
+    Represents a N-order Markov Chain computed from the contents of added files and strings, then produces
+    pseudo-comprehensible word orderings or text based off current order, and the words and their ordering of added
+    strings.
+    """
 
     def __init__(self):
         # Mapping of unique words to all possible words that followed it.
