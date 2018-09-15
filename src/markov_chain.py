@@ -12,7 +12,6 @@ class Content(enum.Enum):
 
 
 class MarkovChain:
-
     """
     Represents a N-order Markov Chain computed from the contents of added files and strings, then produces
     pseudo-comprehensible word orderings or text based off current order, and the words and their ordering of added
@@ -38,9 +37,17 @@ class MarkovChain:
         self._production_state = Content.WORDS
 
     def set_production_state_to_words(self):
+        """
+        Sets this Markov Chain to work with words.
+        :return: None
+        """
         self._production_state = Content.WORDS
 
     def set_production_state_to_chars(self):
+        """
+        Sets this Markov Chain to work with individual characters.
+        :return: None
+        """
         self._production_state = Content.CHARS
 
     def add_string(self, string):
@@ -50,7 +57,6 @@ class MarkovChain:
         :param string: string to format and add
         :return: None
         """
-        #cleaned_text = re.split(' +|-|\n+', string)
         replace_errors = re.compile('[.,():;?!"]')
         space_errors = re.compile('\n+|-')
 
@@ -83,33 +89,18 @@ class MarkovChain:
 
     def add_word(self, formatted_text):
         """
-        Given a long string of words, adds its contents to this Markov Chain. Each order length number of elements,
-        found by preceding down the list element by element, is added to the Markov Chain as is is the following
-        element.
+        Same as add_chars, but with whole words (denoted by spaces) instead of individual characters.
         :param formatted_text: list of text to add to this Markov Chain
         :return: None
         """
         formatted_text = re.split(' +', formatted_text)
-        for idx in range(len(formatted_text)):
-            if (idx + self.order) <= (len(formatted_text) - 1):  # Last state has nothing that follows it
-                cur_state = []
-
-                for next_word_idx in range(self.order):
-                    next_word = formatted_text[idx + next_word_idx]
-                    cur_state.append(next_word)
-
-                cur_state = tuple(cur_state)
-
-                following_word = formatted_text[idx + self.order]
-
-                if cur_state not in self.markov_chain:
-                    self.markov_chain[cur_state] = [following_word]
-                else:
-                    self.markov_chain[cur_state].append(following_word)
+        self.add_chars(formatted_text)
 
     def add_chars(self, string):
         """
-
+        Given a long string of words, adds its contents to this Markov Chain. Each order length number of chars,
+        found by preceding down the list element by element, is added to the Markov Chain as is is the following
+        element.
         :param string:
         :return:
         """
@@ -149,11 +140,20 @@ class MarkovChain:
             elif self._production_state is Content.CHARS:
                 self.add_chars(self.history)
 
-    def recompute_markov_chain_same_order(self):
+    def recompute_markov_chain_with_words(self):
         """
-        Recomputes this Markov Chain without changing its order.
+        Recomputes this Markov Chain with words
         :return: None
         """
+        self.set_production_state_to_words()
+        self.recompute_markov_chain(self.order)
+
+    def recompute_markov_chain_with_chars(self):
+        """
+        Recomputes this Markov Chain with words
+        :return: None
+        """
+        self.set_production_state_to_chars()
         self.recompute_markov_chain(self.order)
 
     def next_state(self):

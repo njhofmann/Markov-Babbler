@@ -1,2 +1,1 @@
--Markov chain unit tests
--Word vs text support for Markov Chain
+-Unit tests

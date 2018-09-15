@@ -120,6 +120,7 @@ class Window:
         self.set_max_sentence.config(textvariable=self.initial_max_sentence)
         self.set_max_sentence.grid(row=self.max_sentence_row, column=self.options_column+1)
 
+        # Radio buttons controlling if this GUI's Markov Chain should work with words or individual chars.
         self.words_or_char_row = 6
         self.master_variable = tk.StringVar()
         self.words_radio_button = tk.Radiobutton(master, text='Words', variable=self.master_variable, value='a',
@@ -238,19 +239,17 @@ class Window:
 
     def set_markov_chain_to_words(self):
         """
-
-        :return:
+        Has this GUI's Markov Chain recompute itself to work with whole words.
+        :return: None
         """
-        self.markov_chain.set_production_state_to_words()
-        self.markov_chain.recompute_markov_chain_same_order()
+        self.markov_chain.recompute_markov_chain_with_words()
 
     def set_markov_chain_to_chars(self):
         """
-
-        :return:
+        Has this GUI's Markov Chain recompute itself to work with individual characters.
+        :return: None
         """
-        self.markov_chain.set_production_state_to_chars()
-        self.markov_chain.recompute_markov_chain_same_order()
+        self.markov_chain.recompute_markov_chain_with_chars()
 
     def save_babble(self):
         """
