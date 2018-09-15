@@ -1,7 +1,7 @@
 from tkinter import filedialog
 import tkinter as tk
 import random
-from src.markov_chain import MarkovChain
+import markov_chain as mc
 
 
 class Window:
@@ -18,7 +18,7 @@ class Window:
         self.master = master
         self.master.resizable(False, False)
         self.master.title('Markov Babbler')
-        self.markov_chain = MarkovChain()
+        self.markov_chain = mc.MarkovChain()
 
         # Constants
         self.button_height = 2
@@ -120,18 +120,28 @@ class Window:
         self.set_max_sentence.config(textvariable=self.initial_max_sentence)
         self.set_max_sentence.grid(row=self.max_sentence_row, column=self.options_column+1)
 
+        self.words_or_char_row = 6
+        self.master_variable = tk.StringVar()
+        self.words_radio_button = tk.Radiobutton(master, text='Words', variable=self.master_variable, value='a',
+                                                 command=self.set_markov_chain_to_words)
+        self.chars_radio_button = tk.Radiobutton(master, text='Chars', variable=self.master_variable, value='b',
+                                                 command=self.set_markov_chain_to_chars)
+        self.words_radio_button.select()
+        self.words_radio_button.grid(row=self.words_or_char_row, column=self.options_column)
+        self.chars_radio_button.grid(row=self.words_or_char_row, column=self.options_column+1)
+
         # Generates a new batch of output from the Markov Chain, based off current constants like order, min/max
         # sentence length, etc.
         self.generate = tk.Button(master, text="Generate Text", height=self.button_height, width=self.button_width,
                                   bg=self.button_off_color, activebackground=self.button_on_color,
                                   command=self.generate_babble_text)
-        self.generate.grid(row=6, column=self.options_column, columnspan=self.button_column_span)
+        self.generate.grid(row=7, column=self.options_column, columnspan=self.button_column_span)
 
         # Saves the Markov Chain output last outputted to .txt file
         self.save_file = tk.Button(master, text='Save Text', height=self.button_height, width=self.button_width,
                                    bg=self.button_off_color, activebackground=self.button_on_color,
                                    command=self.save_babble)
-        self.save_file.grid(row=7, column=self.options_column, columnspan=self.button_column_span)
+        self.save_file.grid(row=8, column=self.options_column, columnspan=self.button_column_span)
 
     def find_file(self):
         """
@@ -225,6 +235,22 @@ class Window:
         new_order = int(self.order_selection.get())
         if new_order != self.markov_chain.order:
             self.markov_chain.recompute_markov_chain(new_order)
+
+    def set_markov_chain_to_words(self):
+        """
+
+        :return:
+        """
+        self.markov_chain.set_production_state_to_words()
+        self.markov_chain.recompute_markov_chain_same_order()
+
+    def set_markov_chain_to_chars(self):
+        """
+
+        :return:
+        """
+        self.markov_chain.set_production_state_to_chars()
+        self.markov_chain.recompute_markov_chain_same_order()
 
     def save_babble(self):
         """

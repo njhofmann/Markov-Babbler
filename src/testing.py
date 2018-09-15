@@ -1,4 +1,10 @@
-import re
+import enum
+class Content(enum.Enum):
+    """
+    Enum specifying which type of content a MarkovChain should work with, words or chars.
+    """
+    WORDS = 'words'
+    CHARS = 'chars'
 
-a = (for idx in range(10))
-print(a)
+a = Content.WORDS
+print(a is Content.WORDS)
