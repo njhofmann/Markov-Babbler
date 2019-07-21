@@ -260,7 +260,7 @@ class Window:
         save_file = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
         if save_file is None:
             return
-        save_file.write(self.babble_output)
+        save_file.write(self.display.get('1.0', tk.END))
         save_file.close()
 
 
